@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigOptimizer AI — Powered by Z.AI GLM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0f;
+  --surface: #111418;
+  --surface2: #181c22;
+  --border: #1e2530;
+  --accent: #00e5a0;
+  --accent2: #7c6eff;
+  --accent3: #ff6b35;
+  --text: #e8edf3;
+  --muted: #5a6478;
+  --danger: #ff4757;
+  --warn: #ffa502;
+  --card-glow: 0 0 30px rgba(0,229,160,0.06);
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background grid */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,12,15,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.15rem; font-weight: 800; letter-spacing: -0.5px;
+}
+.logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.glm-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; font-weight: 700;
+  color: var(--accent); border: 1px solid rgba(0,229,160,0.3);
+  padding: 3px 8px; border-radius: 4px;
+  letter-spacing: 1px;
+  animation: badge-glow 3s ease-in-out infinite;
+}
+@keyframes badge-glow { 0%,100%{box-shadow:0 0 6px rgba(0,229,160,0.2)} 50%{box-shadow:0 0 16px rgba(0,229,160,0.5)} }
+
+.worker-selector {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; color: var(--muted);
+}
+.worker-selector select {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 6px 10px; border-radius: 6px;
+  font-family: inherit; font-size: 0.8rem; cursor: pointer;
+  outline: none;
+}
+.worker-selector select:focus { border-color: var(--accent); }
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 57px);
+  position: relative; z-index: 1;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.nav-section { font-size: 0.65rem; font-weight: 700; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 16px 12px 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  cursor: pointer; font-size: 0.85rem; font-weight: 600;
+  color: var(--muted); transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active {
+  color: var(--accent); background: rgba(0,229,160,0.07);
+  border-color: rgba(0,229,160,0.2);
+}
+.nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+.nav-tag {
+  margin-left: auto; font-size: 0.6rem; font-family: 'Space Mono', monospace;
+  background: rgba(124,110,255,0.2); color: var(--accent2);
+  padding: 2px 6px; border-radius: 3px;
+}
+
+/* Worker card in sidebar */
+.worker-card {
+  margin-top: auto; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+}
+.worker-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1rem; margin-bottom: 10px;
+}
+.worker-name { font-weight: 700; font-size: 0.9rem; }
+.worker-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.rating-row { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 0.78rem; }
+.star { color: #ffd700; }
+
+/* ── MAIN PANEL ── */
+.main {
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.panel-header { margin-bottom: 24px; }
+.panel-title { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; }
+.panel-sub { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--card-glow);
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: rgba(0,229,160,0.2); }
+
+.card-grid { display: grid; gap: 16px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.card-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.card-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -1px; }
+.card-delta { font-size: 0.78rem; margin-top: 4px; }
+.up { color: var(--accent); }
+.down { color: var(--danger); }
+
+/* ── TASK CARDS ── */
+.task-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 12px; align-items: start;
+  transition: all 0.2s ease; cursor: pointer;
+}
+.task-card:hover { border-color: rgba(0,229,160,0.25); background: var(--surface2); transform: translateX(2px); }
+.task-card.selected { border-color: var(--accent2); background: rgba(124,110,255,0.06); }
+.task-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+.task-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.tag {
+  font-size: 0.67rem; font-family: 'Space Mono', monospace;
+  padding: 3px 7px; border-radius: 4px; font-weight: 700;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+}
+.tag.surge { background: rgba(255,107,53,0.12); border-color: rgba(255,107,53,0.3); color: var(--accent3); }
+.tag.rain { background: rgba(124,110,255,0.12); border-color: rgba(124,110,255,0.3); color: var(--accent2); }
+.tag.clear { background: rgba(0,229,160,0.08); border-color: rgba(0,229,160,0.2); color: var(--accent); }
+.task-pay { text-align: right; }
+.pay-gross { font-size: 1.25rem; font-weight: 800; color: var(--accent); }
+.pay-net { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+/* ── BUTTON ── */
+.btn {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 0.85rem;
+  padding: 10px 20px; border-radius: 8px;
+  border: none; cursor: pointer; transition: all 0.15s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary {
+  background: var(--accent); color: #000;
+}
+.btn-primary:hover { background: #00ffb3; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,229,160,0.3); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-ghost {
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 7px 14px; font-size: 0.78rem; }
+
+/* ── GLM INSIGHT BOX ── */
+.insight-box {
+  background: linear-gradient(135deg, rgba(0,229,160,0.04), rgba(124,110,255,0.04));
+  border: 1px solid rgba(0,229,160,0.2);
+  border-radius: 10px; padding: 18px;
+  position: relative; overflow: hidden;
+}
+.insight-box::before {
+  content: '◈ Z.AI GLM INSIGHT';
+  position: absolute; top: 10px; right: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem; color: rgba(0,229,160,0.4);
+  letter-spacing: 1px;
+}
+.insight-text { font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+.insight-title { font-weight: 800; font-size: 0.78rem; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── LOADING ── */
+.loading {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; color: var(--muted); font-family: 'Space Mono', monospace;
+}
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border); border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── RECOMMENDATION CARD ── */
+.rec-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.rec-rank {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem;
+}
+.rank-1 { background: rgba(0,229,160,0.15); color: var(--accent); }
+.rank-2 { background: rgba(124,110,255,0.15); color: var(--accent2); }
+.rank-3 { background: rgba(255,107,53,0.15); color: var(--accent3); }
+.rec-content { flex: 1; }
+.rec-task { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.rec-reason { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.rec-meta { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.risk-badge { font-size: 0.65rem; font-family: 'Space Mono', monospace; padding: 3px 7px; border-radius: 4px; font-weight: 700; }
+.risk-low { background: rgba(0,229,160,0.1); color: var(--accent); }
+.risk-medium { background: rgba(255,165,0,0.1); color: var(--warn); }
+.risk-high { background: rgba(255,71,87,0.1); color: var(--danger); }
+.earn-highlight { font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+
+/* ── SCHEDULE ROW ── */
+.schedule-row {
+  display: grid; grid-template-columns: 130px 1fr auto;
+  gap: 14px; align-items: center;
+  padding: 14px 18px;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); margin-bottom: 8px;
+  transition: all 0.15s;
+}
+.schedule-row:hover { border-color: rgba(0,229,160,0.2); }
+.sched-time { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--accent2); }
+.sched-task { font-weight: 700; font-size: 0.85rem; }
+.sched-action { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+.sched-pay { font-weight: 800; color: var(--accent); font-size: 0.95rem; text-align: right; }
+
+/* ── INCOME CHART ── */
+.mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 60px; margin: 12px 0; }
+.bar {
+  flex: 1; border-radius: 3px 3px 0 0;
+  background: linear-gradient(to top, var(--accent2), var(--accent));
+  opacity: 0.7; transition: opacity 0.15s; cursor: default; position: relative;
+}
+.bar:hover { opacity: 1; }
+.bar::after {
+  content: attr(data-val);
+  position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  font-size: 0.6rem; font-family: 'Space Mono', monospace; color: var(--accent);
+  white-space: nowrap; opacity: 0; transition: opacity 0.15s;
+}
+.bar:hover::after { opacity: 1; }
+.chart-labels { display: flex; gap: 4px; }
+.chart-label { flex: 1; text-align: center; font-size: 0.6rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+/* ── STRATEGY CARD ── */
+.strategy-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; display: flex; gap: 12px;
+}
+.strategy-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.effort-low { background: rgba(0,229,160,0.1); }
+.effort-medium { background: rgba(255,165,0,0.1); }
+.effort-high { background: rgba(124,110,255,0.1); }
+.strategy-name { font-weight: 700; font-size: 0.85rem; }
+.strategy-uplift { font-size: 0.78rem; color: var(--accent); font-weight: 700; margin-top: 3px; }
+.strategy-meta { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+
+/* ── MATRIX TABLE ── */
+.matrix { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.matrix th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.matrix td { padding: 10px 12px; border-bottom: 1px solid rgba(30,37,48,0.5); }
+.score-bar { width: 60px; height: 6px; background: var(--border); border-radius: 3px; display: inline-block; position: relative; vertical-align: middle; margin-right: 6px; }
+.score-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+
+/* ── TRADEOFF ── */
+.tradeoff-grid { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 16px; align-items: center; }
+.vs-divider { text-align: center; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+.task-compare-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.task-compare-card.winner { border-color: var(--accent); background: rgba(0,229,160,0.05); }
+.compare-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.compare-title { font-weight: 700; font-size: 0.9rem; }
+.compare-pay { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin-top: 8px; }
+
+/* ── IMPACT BAR ── */
+.impact-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+.impact-label { font-size: 0.78rem; color: var(--muted); width: 180px; flex-shrink: 0; }
+.impact-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.impact-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 1s ease; }
+.impact-val { font-size: 0.78rem; font-weight: 700; color: var(--accent); width: 60px; text-align: right; font-family: 'Space Mono', monospace; }
+
+/* ── PROJECTION BOX ── */
+.projection {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px; margin-top: 16px;
+}
+.proj-item { text-align: center; }
+.proj-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.proj-val { font-size: 1.4rem; font-weight: 800; margin-top: 4px; }
+.proj-val.good { color: var(--accent); }
+.proj-val.base { color: var(--text); }
+.proj-val.great { color: #ffd700; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface2); border-radius: 8px; padding: 4px; border: 1px solid var(--border); width: fit-content; }
+.tab { padding: 7px 16px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: var(--muted); transition: all 0.15s; }
+.tab.active { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.tab:hover:not(.active) { color: var(--text); }
+
+/* ── MISC ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.section-title { font-weight: 800; font-size: 1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.gap-3 { display: flex; flex-direction: column; gap: 12px; }
+.glm-tag { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--accent); opacity: 0.6; }
+.empty-state { text-align: center; padding: 48px; color: var(--muted); }
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.empty-text { font-size: 0.88rem; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    GigOptimizer AI
+    <span class="glm-badge">GLM-5.1</span>
+  </div>
+  <div class="worker-selector">
+    <span>Worker:</span>
+    <select id="workerSelect" onchange="onWorkerChange()">
+      <option value="W001">Ahmad Razif · Motorcycle</option>
+      <option value="W002">Siti Norlela · Car</option>
+      <option value="W003">Rajesh Kumar · Bicycle</option>
+    </select>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-section">Navigation</div>
+    <div class="nav-item active" onclick="showPanel('dashboard')">
+      <span class="nav-icon">◈</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPanel('tasks')">
+      <span class="nav-icon">⟐</span> Task Selection
+      <span class="nav-tag">GLM</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('schedule')">
+      <span class="nav-icon">◷</span> Smart Schedule
+      <span class="nav-tag">GLM</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('income')">
+      <span class="nav-icon">◬</span> Income Optimizer
+      <span class="nav-tag">GLM</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('tradeoff')">
+      <span class="nav-icon">⇋</span> Trade-off Analyzer
+      <span class="nav-tag">GLM</span>
+    </div>
+
+    <div class="worker-card" id="sidebarWorker">
+      <div class="worker-avatar" id="workerAvatar">AR</div>
+      <div class="worker-name" id="workerName">Ahmad Razif</div>
+      <div class="worker-meta" id="workerMeta">Motorcycle · 312 tasks</div>
+      <div class="rating-row">
+        <span class="star">★</span>
+        <span id="workerRating">4.7</span>
+        <span style="color:var(--muted);font-size:0.72rem">/5.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PANELS -->
+  <div class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-header">
+        <div class="panel-title">Overview</div>
+        <div class="panel-sub">Your gig performance at a glance — powered by Z.AI GLM analysis</div>
+      </div>
+
+      <div class="card-grid card-grid-3">
+        <div class="card">
+          <div class="card-label">Avg Weekly Earnings</div>
+          <div class="card-value" id="dash-avg">MYR —</div>
+          <div class="card-delta" id="dash-trend">Loading...</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Tasks Available Now</div>
+          <div class="card-value">8</div>
+          <div class="card-delta up">↑ 3 surge tasks active</div>
+        </div>
+        <div class="card">
+          <div class="card-label">GLM Recommendation</div>
+          <div class="card-value" style="font-size:1.2rem;color:var(--accent)">Evening Surge</div>
+          <div class="card-delta" style="color:var(--muted)">Optimal window in 4h</div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="section-title">Weekly Earnings History</div>
+        <div class="card">
+          <div class="mini-chart" id="earningsChart"></div>
+          <div class="chart-labels" id="chartLabels">
+            <div class="chart-label">Mon</div><div class="chart-label">Tue</div>
+            <div class="chart-label">Wed</div><div class="chart-label">Thu</div>
+            <div class="chart-label">Fri</div><div class="chart-label">Sat</div>
+            <div class="chart-label">Sun</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="section-title">GLM System Capabilities</div>
+        <div class="card-grid card-grid-2">
+          <div class="card" style="border-color:rgba(0,229,160,0.15)">
+            <div style="font-size:1.4rem;margin-bottom:8px">⟐</div>
+            <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px">Structured + Unstructured Fusion</div>
+            <div style="font-size:0.8rem;color:var(--muted);line-height:1.5">GLM processes task metrics (numbers) alongside weather, traffic, and worker behaviour (language) to form a unified decision view.</div>
+          </div>
+          <div class="card" style="border-color:rgba(124,110,255,0.15)">
+            <div style="font-size:1.4rem;margin-bottom:8px">◈</div>
+            <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px">Context-Aware Reasoning</div>
+            <div style="font-size:0.8rem;color:var(--muted);line-height:1.5">Recommendations adapt dynamically to the worker's vehicle type, rating, time of day, and historical patterns — not generic rules.</div>
+          </div>
+          <div class="card" style="border-color:rgba(255,107,53,0.15)">
+            <div style="font-size:1.4rem;margin-bottom:8px">⇋</div>
+            <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px">Trade-off Decision Intelligence</div>
+            <div style="font-size:0.8rem;color:var(--muted);line-height:1.5">GLM compares competing tasks across earnings, time efficiency, risk, and strategic value — explaining the winner in plain language.</div>
+          </div>
+          <div class="card" style="border-color:rgba(255,215,0,0.1)">
+            <div style="font-size:1.4rem;margin-bottom:8px">◬</div>
+            <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px">Quantifiable Income Impact</div>
+            <div style="font-size:0.8rem;color:var(--muted);line-height:1.5">Every recommendation includes MYR projections: how much more the worker earns following GLM advice vs. random task selection.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="section-title">Quick Actions</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="showPanel('tasks');analyzeTasksGLM()">◈ Analyze Tasks with GLM</button>
+          <button class="btn btn-ghost" onclick="showPanel('schedule');generateScheduleGLM()">◷ Build Smart Schedule</button>
+          <button class="btn btn-ghost" onclick="showPanel('income');analyzeIncomeGLM()">◬ Optimize Income</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TASK SELECTION ── -->
+    <div class="panel" id="panel-tasks">
+      <div class="panel-header">
+        <div class="panel-title">Task Selection</div>
+        <div class="panel-sub">GLM analyzes structured metrics + unstructured signals to recommend the best tasks</div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="analyzeTasksGLM()" id="analyzeBtn">◈ Run GLM Analysis</button>
+        <span style="font-size:0.78rem;color:var(--muted);align-self:center;font-family:'Space Mono',monospace">ilmu-glm-5.1 · structured + unstructured fusion</span>
+      </div>
+
+      <!-- GLM Recommendations -->
+      <div id="glmRecsSection" style="display:none">
+        <div class="section-title">GLM Recommendations</div>
+        <div id="glmRecs" class="gap-3"></div>
+        <div id="glmProjection"></div>
+        <div id="glmInsight" style="margin-top:16px"></div>
+        <div id="glmAvoid" style="margin-top:12px"></div>
+      </div>
+
+      <div id="taskAnalysisLoading" style="display:none;margin:20px 0" class="loading">
+        <div class="spinner"></div> GLM is analyzing tasks and worker context...
+      </div>
+
+      <hr class="divider">
+      <div class="section-title">All Available Tasks</div>
+      <div id="taskList" class="gap-3">
+        <div class="loading"><div class="spinner"></div> Loading tasks...</div>
+      </div>
+    </div>
+
+    <!-- ── SCHEDULE ── -->
+    <div class="panel" id="panel-schedule">
+      <div class="panel-header">
+        <div class="panel-title">Smart Schedule</div>
+        <div class="panel-sub">GLM optimizes your day — clustering tasks, timing surges, projecting earnings</div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:0.8rem;color:var(--muted)">Daily target:</span>
+          <input type="number" id="targetEarnings" value="150" min="50" max="500" step="10"
+            style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;width:90px;font-family:inherit;font-size:0.88rem">
+          <span style="font-size:0.8rem;color:var(--muted)">MYR</span>
+        </div>
+        <button class="btn btn-primary" onclick="generateScheduleGLM()">◷ Generate Schedule</button>
+      </div>
+
+      <div id="scheduleLoading" style="display:none;margin:20px 0" class="loading">
+        <div class="spinner"></div> GLM is building your optimized schedule...
+      </div>
+
+      <div id="scheduleOutput" style="display:none">
+        <div class="card-grid card-grid-3" id="scheduleStats"></div>
+        <div class="mt-6">
+          <div class="section-title">Optimized Day Plan</div>
+          <div id="scheduleRows"></div>
+        </div>
+        <div id="scheduleInsight" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- ── INCOME OPTIMIZER ── -->
+    <div class="panel" id="panel-income">
+      <div class="panel-header">
+        <div class="panel-title">Income Optimizer</div>
+        <div class="panel-sub">GLM interprets your earnings history and generates revenue growth strategies</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="analyzeIncomeGLM()" style="margin-bottom:20px">◬ Analyze Income with GLM</button>
+
+      <div id="incomeLoading" style="display:none;margin:20px 0" class="loading">
+        <div class="spinner"></div> GLM is forecasting your income patterns...
+      </div>
+
+      <div id="incomeOutput" style="display:none">
+        <div class="section-title">Earnings History</div>
+        <div class="card">
+          <div class="mini-chart" id="incomeChart"></div>
+          <div class="chart-labels" id="incomeLabels">
+            <div class="chart-label">Mon</div><div class="chart-label">Tue</div>
+            <div class="chart-label">Wed</div><div class="chart-label">Thu</div>
+            <div class="chart-label">Fri</div><div class="chart-label">Sat</div>
+            <div class="chart-label">Sun</div>
+          </div>
+        </div>
+
+        <div class="mt-6" id="incomeTrend"></div>
+        <div class="mt-6">
+          <div class="section-title">Revenue Strategies</div>
+          <div id="strategies" class="gap-3"></div>
+        </div>
+        <div class="mt-6" id="incomeProjection"></div>
+        <div class="mt-4" id="incomeTip"></div>
+        <div class="mt-4" id="incomeRisks"></div>
+      </div>
+    </div>
+
+    <!-- ── TRADE-OFF ── -->
+    <div class="panel" id="panel-tradeoff">
+      <div class="panel-header">
+        <div class="panel-title">Trade-off Analyzer</div>
+        <div class="panel-sub">GLM reasons across multiple dimensions to pick the better task — with explanation</div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <select id="task1" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-family:inherit;font-size:0.85rem">
+          <option value="T002">T002 · Food delivery (lunch surge)</option>
+          <option value="T005">T005 · Evening surge ride</option>
+          <option value="T003">T003 · Freelance logo design</option>
+          <option value="T004">T004 · Parcel delivery (rain)</option>
+          <option value="T008">T008 · Night surge ride</option>
+        </select>
+        <span style="align-self:center;color:var(--muted);font-size:0.9rem">vs</span>
+        <select id="task2" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-family:inherit;font-size:0.85rem">
+          <option value="T005">T005 · Evening surge ride</option>
+          <option value="T002">T002 · Food delivery (lunch surge)</option>
+          <option value="T006">T006 · Data entry task</option>
+          <option value="T001">T001 · Grocery delivery</option>
+          <option value="T007">T007 · Grocery (rain)</option>
+        </select>
+        <button class="btn btn-primary" onclick="runTradeoffGLM()">⇋ Analyze Trade-off</button>
+      </div>
+
+      <div id="tradeoffLoading" style="display:none;margin:20px 0" class="loading">
+        <div class="spinner"></div> GLM is weighing options across earnings, risk, and strategy...
+      </div>
+
+      <div id="tradeoffOutput" style="display:none">
+        <div id="tradeoffCompare" class="mt-4"></div>
+        <div id="tradeoffMatrix" class="mt-6"></div>
+        <div id="tradeoffDecision" style="margin-top:16px"></div>
+        <div id="tradeoffConditions" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+const API = 'http://localhost:5000/api';
+let currentWorker = 'W001';
+let allTasks = [];
+
+const WORKERS = {
+  W001: { name: 'Ahmad Razif', initials: 'AR', meta: 'Motorcycle · 312 tasks', rating: 4.7 },
+  W002: { name: 'Siti Norlela', initials: 'SN', meta: 'Car · 187 tasks', rating: 4.5 },
+  W003: { name: 'Rajesh Kumar', initials: 'RK', meta: 'Bicycle · 89 tasks', rating: 4.8 },
+};
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+async function init() {
+  updateWorkerCard();
+  await loadDashboard();
+  await loadTasks();
+}
+
+function onWorkerChange() {
+  currentWorker = document.getElementById('workerSelect').value;
+  updateWorkerCard();
+  loadDashboard();
+  loadTasks();
+  // Clear previous GLM results
+  ['glmRecsSection','scheduleOutput','incomeOutput','tradeoffOutput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+
+function updateWorkerCard() {
+  const w = WORKERS[currentWorker];
+  document.getElementById('workerAvatar').textContent = w.initials;
+  document.getElementById('workerName').textContent = w.name;
+  document.getElementById('workerMeta').textContent = w.meta;
+  document.getElementById('workerRating').textContent = w.rating;
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(id === 'dashboard' ? 'dashboard' :
+        id === 'tasks' ? 'task' : id === 'schedule' ? 'schedule' :
+        id === 'income' ? 'income' : 'trade')) n.classList.add('active');
+  });
+}
+
+// ─────────────────────────────────────────────
+// Dashboard
+// ─────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const res = await fetch(`${API}/worker/${currentWorker}`);
+    const data = await res.json();
+    const avg = data.stats.avg_weekly_earnings;
+    const trend = data.stats.earnings_trend;
+    document.getElementById('dash-avg').textContent = `MYR ${avg.toFixed(0)}`;
+    document.getElementById('dash-trend').innerHTML =
+      `<span class="${trend >= 0 ? 'up' : 'down'}">${trend >= 0 ? '↑' : '↓'} MYR ${Math.abs(trend).toFixed(0)} vs yesterday</span>`;
+    renderMiniChart('earningsChart', data.worker.weekly_earnings);
+  } catch(e) {
+    // Demo static values
+    document.getElementById('dash-avg').textContent = 'MYR 449';
+    document.getElementById('dash-trend').innerHTML = '<span class="up">↑ MYR 40 vs yesterday</span>';
+    renderMiniChart('earningsChart', [420,380,510,445,390,520,480]);
+  }
+}
+
+function renderMiniChart(containerId, values) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const max = Math.max(...values);
+  container.innerHTML = values.map(v =>
+    `<div class="bar" style="height:${(v/max*100)}%" data-val="MYR ${v}"></div>`
+  ).join('');
+}
+
+// ─────────────────────────────────────────────
+// Tasks
+// ─────────────────────────────────────────────
+async function loadTasks() {
+  try {
+    const res = await fetch(`${API}/tasks?worker_id=${currentWorker}`);
+    const data = await res.json();
+    allTasks = data.tasks;
+    renderTaskList(allTasks);
+  } catch(e) {
+    document.getElementById('taskList').innerHTML = '<div style="color:var(--muted);font-size:0.82rem">⚠ Connect backend at localhost:5000</div>';
+  }
+}
+
+function renderTaskList(tasks) {
+  const container = document.getElementById('taskList');
+  if (!tasks || tasks.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⟐</div><div class="empty-text">No tasks available</div></div>';
+    return;
+  }
+  container.innerHTML = tasks.map(t => {
+    const weatherTag = t.weather !== 'n/a' ? `<span class="tag ${t.weather}">${t.weather === 'rain' ? '🌧 Rain' : '☀ Clear'}</span>` : '';
+    const surgeTag = t.surge_multiplier > 1 ? `<span class="tag surge">⚡ ${t.surge_multiplier}x surge</span>` : '';
+    const m = t.metrics || {};
+    return `
+      <div class="task-card" id="tc-${t.id}">
+        <div>
+          <div class="task-title">${t.title}</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:2px">${t.type.replace('_',' ')} · ${t.distance_km > 0 ? t.distance_km + ' km · ' : ''}${t.estimated_minutes} min · ${t.time_window}</div>
+          <div class="task-meta">
+            ${surgeTag}${weatherTag}
+            <span class="tag">${t.traffic !== 'n/a' ? t.traffic + ' traffic' : 'remote'}</span>
+            <span class="tag">⭐ ${t.rating_requirement}+</span>
+          </div>
+        </div>
+        <div class="task-pay">
+          <div class="pay-gross">MYR ${m.gross_pay !== undefined ? m.gross_pay.toFixed(2) : t.payout_myr.toFixed(2)}</div>
+          <div class="pay-net">Net: MYR ${m.net_pay !== undefined ? m.net_pay.toFixed(2) : '—'}</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-top:2px">${m.hourly_rate ? 'MYR '+m.hourly_rate+'/hr' : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function analyzeTasksGLM() {
+  document.getElementById('taskAnalysisLoading').style.display = 'flex';
+  document.getElementById('glmRecsSection').style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/analyze/tasks`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ worker_id: currentWorker })
+    });
+    const data = await res.json();
+    renderTaskAnalysis(data);
+  } catch(e) {
+    document.getElementById('taskAnalysisLoading').innerHTML = '<span style="color:var(--danger)">⚠ Could not reach backend. Start Flask server on port 5000.</span>';
+  }
+}
+
+function renderTaskAnalysis(data) {
+  document.getElementById('taskAnalysisLoading').style.display = 'none';
+  document.getElementById('glmRecsSection').style.display = 'block';
+  const a = data.analysis;
+
+  // Recs
+  const taskMap = {};
+  allTasks.forEach(t => taskMap[t.id] = t);
+  document.getElementById('glmRecs').innerHTML = (a.top_recommendations || []).map(r => {
+    const task = taskMap[r.task_id] || { title: r.task_id };
+    const riskFactors = (r.risk_factors || []).map(f => `<span style="font-size:0.72rem;color:var(--muted)">• ${f}</span>`).join('<br>');
+    return `
+      <div class="rec-card">
+        <div class="rec-rank rank-${r.rank}">${r.rank}</div>
+        <div class="rec-content">
+          <div class="rec-task">${task.title || r.task_id}</div>
+          <div class="rec-reason">${r.reason}</div>
+          ${riskFactors ? `<div style="margin-top:8px">${riskFactors}</div>` : ''}
+          <div class="rec-meta">
+            <span class="risk-badge risk-${r.risk_level}">${r.risk_level.toUpperCase()} RISK</span>
+            <span class="earn-highlight">+ MYR ${r.expected_net_myr?.toFixed(2) || '—'}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Projection
+  const ip = a.income_projection || {};
+  if (ip.if_follow_recommendations_myr) {
+    document.getElementById('glmProjection').innerHTML = `
+      <div class="projection" style="margin-top:16px">
+        <div class="proj-item"><div class="proj-label">Follow GLM</div><div class="proj-val good">MYR ${ip.if_follow_recommendations_myr?.toFixed(0)}</div></div>
+        <div class="proj-item"><div class="proj-label">Random Selection</div><div class="proj-val base">MYR ${ip.vs_random_selection_myr?.toFixed(0)}</div></div>
+        <div class="proj-item"><div class="proj-label">GLM Uplift</div><div class="proj-val great">+${ip.improvement_percent?.toFixed(1)}%</div></div>
+      </div>`;
+  }
+
+  // Key insight
+  if (a.key_insight) {
+    document.getElementById('glmInsight').innerHTML = `
+      <div class="insight-box">
+        <div class="insight-title">Key Insight</div>
+        <div class="insight-text">${a.key_insight}</div>
+        <div class="glm-tag" style="margin-top:10px">${data.model} · ${data.glm_powered ? 'Live GLM' : 'Demo Mode'}</div>
+      </div>`;
+  }
+
+  // Avoid
+  if (a.avoid_tasks?.length) {
+    document.getElementById('glmAvoid').innerHTML = `
+      <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.2);border-radius:8px;padding:14px">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--danger);margin-bottom:6px">⚠ AVOID: ${a.avoid_tasks.join(', ')}</div>
+        <div style="font-size:0.82rem;color:var(--muted)">${a.avoid_reason}</div>
+      </div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Schedule
+// ─────────────────────────────────────────────
+async function generateScheduleGLM() {
+  document.getElementById('scheduleLoading').style.display = 'flex';
+  document.getElementById('scheduleOutput').style.display = 'none';
+  const target = parseFloat(document.getElementById('targetEarnings').value) || 150;
+
+  try {
+    const res = await fetch(`${API}/analyze/schedule`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ worker_id: currentWorker, target_earnings: target })
+    });
+    const data = await res.json();
+    renderSchedule(data);
+  } catch(e) {
+    document.getElementById('scheduleLoading').innerHTML = '<span style="color:var(--danger)">⚠ Backend not reachable.</span>';
+  }
+}
+
+function renderSchedule(data) {
+  document.getElementById('scheduleLoading').style.display = 'none';
+  document.getElementById('scheduleOutput').style.display = 'block';
+  const s = data.schedule;
+
+  document.getElementById('scheduleStats').innerHTML = `
+    <div class="card">
+      <div class="card-label">Projected Earnings</div>
+      <div class="card-value" style="color:var(--accent)">MYR ${s.total_projected_myr?.toFixed(0) || '—'}</div>
+      <div class="card-delta up">vs target MYR ${data.target_earnings_myr}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Effective Hourly Rate</div>
+      <div class="card-value">MYR ${s.effective_hourly_rate?.toFixed(0) || '—'}</div>
+      <div class="card-delta" style="color:var(--muted)">${s.total_hours || '—'} hrs planned</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Time Saved vs Unoptimized</div>
+      <div class="card-value" style="color:var(--accent2)">${s.time_saved_vs_unoptimized_minutes || '—'} min</div>
+      <div class="card-delta" style="color:var(--muted)">Through task clustering</div>
+    </div>`;
+
+  document.getElementById('scheduleRows').innerHTML = (s.schedule || []).map(row => `
+    <div class="schedule-row">
+      <div class="sched-time">${row.time_slot}</div>
+      <div>
+        <div class="sched-task">${row.task_title}</div>
+        <div class="sched-action">${row.action}</div>
+      </div>
+      <div class="sched-pay">MYR ${row.expected_earning_myr?.toFixed(2)}</div>
+    </div>`).join('');
+
+  document.getElementById('scheduleInsight').innerHTML = s.optimization_notes ? `
+    <div class="insight-box">
+      <div class="insight-title">Schedule Strategy</div>
+      <div class="insight-text">${s.optimization_notes}</div>
+      ${s.breaks?.length ? `<div style="margin-top:10px;font-size:0.78rem;color:var(--muted)">Breaks: ${s.breaks.join(', ')}</div>` : ''}
+    </div>` : '';
+}
+
+// ─────────────────────────────────────────────
+// Income
+// ─────────────────────────────────────────────
+async function analyzeIncomeGLM() {
+  document.getElementById('incomeLoading').style.display = 'flex';
+  document.getElementById('incomeOutput').style.display = 'none';
+
+  try {
+    const res = await fetch(`${API}/analyze/income`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ worker_id: currentWorker })
+    });
+    const data = await res.json();
+    renderIncome(data);
+  } catch(e) {
+    document.getElementById('incomeLoading').innerHTML = '<span style="color:var(--danger)">⚠ Backend not reachable.</span>';
+  }
+}
+
+function renderIncome(data) {
+  document.getElementById('incomeLoading').style.display = 'none';
+  document.getElementById('incomeOutput').style.display = 'block';
+  const a = data.analysis;
+
+  renderMiniChart('incomeChart', data.earnings_history || []);
+
+  document.getElementById('incomeTrend').innerHTML = a.trend_analysis ? `
+    <div class="insight-box">
+      <div class="insight-title">Trend Analysis</div>
+      <div class="insight-text">${a.trend_analysis}</div>
+    </div>` : '';
+
+  document.getElementById('strategies').innerHTML = (a.revenue_strategies || []).map(s => {
+    const icons = { low: '🟢', medium: '🟡', high: '🔴' };
+    return `
+      <div class="strategy-card">
+        <div class="strategy-icon effort-${s.effort}">${icons[s.effort] || '◈'}</div>
+        <div>
+          <div class="strategy-name">${s.strategy}</div>
+          <div class="strategy-uplift">+ MYR ${s.estimated_uplift_myr_weekly}/week estimated uplift</div>
+          <div class="strategy-meta">Effort: ${s.effort} · ${s.timeframe}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  if (a.monthly_forecast_myr) {
+    document.getElementById('incomeProjection').innerHTML = `
+      <div class="projection">
+        <div class="proj-item"><div class="proj-label">Current Avg/Week</div><div class="proj-val base">MYR ${data.current_avg_weekly_myr?.toFixed(0)}</div></div>
+        <div class="proj-item"><div class="proj-label">Monthly Forecast</div><div class="proj-val good">MYR ${a.monthly_forecast_myr?.toFixed(0)}</div></div>
+        <div class="proj-item"><div class="proj-label">Income Stability</div><div class="proj-val ${a.income_stability_score > 6 ? 'great' : 'good'}">${a.income_stability_score}/10</div></div>
+      </div>`;
+  }
+
+  if (a.actionable_tip) {
+    document.getElementById('incomeTip').innerHTML = `
+      <div class="insight-box">
+        <div class="insight-title">💡 Actionable Tip</div>
+        <div class="insight-text">${a.actionable_tip}</div>
+      </div>`;
+  }
+
+  if (a.key_risks?.length) {
+    document.getElementById('incomeRisks').innerHTML = `
+      <div style="background:rgba(255,71,87,0.05);border:1px solid rgba(255,71,87,0.15);border-radius:8px;padding:14px">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--danger);margin-bottom:8px">⚠ Key Risks</div>
+        ${a.key_risks.map(r => `<div style="font-size:0.8rem;color:var(--muted);margin-top:4px">• ${r}</div>`).join('')}
+      </div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Trade-off
+// ─────────────────────────────────────────────
+async function runTradeoffGLM() {
+  document.getElementById('tradeoffLoading').style.display = 'flex';
+  document.getElementById('tradeoffOutput').style.display = 'none';
+  const t1 = document.getElementById('task1').value;
+  const t2 = document.getElementById('task2').value;
+  if (t1 === t2) {
+    alert('Please select two different tasks.'); 
+    document.getElementById('tradeoffLoading').style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/analyze/tradeoff`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ worker_id: currentWorker, task_ids: [t1, t2] })
+    });
+    const data = await res.json();
+    renderTradeoff(data);
+  } catch(e) {
+    document.getElementById('tradeoffLoading').innerHTML = '<span style="color:var(--danger)">⚠ Backend not reachable.</span>';
+  }
+}
+
+function renderTradeoff(data) {
+  document.getElementById('tradeoffLoading').style.display = 'none';
+  document.getElementById('tradeoffOutput').style.display = 'block';
+  const a = data.tradeoff_analysis;
+  const tasks = data.tasks_compared || [];
+  const t1 = tasks[0] || {}, t2 = tasks[1] || {};
+
+  // Compare cards
+  document.getElementById('tradeoffCompare').innerHTML = `
+    <div class="tradeoff-grid">
+      <div class="task-compare-card ${t1.id === a.winner_task_id ? 'winner' : ''}">
+        <div class="compare-label">${t1.id === a.winner_task_id ? '✓ WINNER' : 'OPTION A'}</div>
+        <div class="compare-title">${t1.title}</div>
+        <div class="compare-pay">MYR ${t1.net_pay?.toFixed(2) || '—'}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">${t1.estimated_minutes} min · ${t1.surge_multiplier}x surge</div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="task-compare-card ${t2.id === a.winner_task_id ? 'winner' : ''}">
+        <div class="compare-label">${t2.id === a.winner_task_id ? '✓ WINNER' : 'OPTION B'}</div>
+        <div class="compare-title">${t2.title}</div>
+        <div class="compare-pay">MYR ${t2.net_pay?.toFixed(2) || '—'}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">${t2.estimated_minutes} min · ${t2.surge_multiplier}x surge</div>
+      </div>
+    </div>`;
+
+  // Score matrix
+  const matrix = a.comparison_matrix || {};
+  const dims = ['earnings_score','efficiency_score','risk_score','strategic_score'];
+  const dimLabels = ['Earnings','Efficiency','Risk','Strategic'];
+  const ids = Object.keys(matrix);
+  document.getElementById('tradeoffMatrix').innerHTML = `
+    <div class="section-title">Comparison Matrix</div>
+    <table class="matrix">
+      <thead><tr><th>Dimension</th>${ids.map(id => `<th>${id}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${dims.map((d, i) => `
+          <tr>
+            <td>${dimLabels[i]}</td>
+            ${ids.map(id => {
+              const val = matrix[id]?.[d] || 0;
+              return `<td>
+                <span class="score-bar"><span class="score-fill" style="width:${val*10}%"></span></span>
+                ${val}/10
+              </td>`;
+            }).join('')}
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  // Decision
+  document.getElementById('tradeoffDecision').innerHTML = a.decision_explanation ? `
+    <div class="insight-box">
+      <div class="insight-title">GLM Decision — ${a.confidence_level?.toUpperCase()} CONFIDENCE</div>
+      <div class="insight-text">${a.winner_reason}</div>
+      <div style="margin-top:10px;font-size:0.82rem;color:var(--muted)">${a.decision_explanation}</div>
+    </div>` : '';
+
+  // Conditions
+  document.getElementById('tradeoffConditions').innerHTML = a.under_which_conditions_prefer_other ? `
+    <div style="background:rgba(124,110,255,0.06);border:1px solid rgba(124,110,255,0.2);border-radius:8px;padding:14px">
+      <div style="font-size:0.75rem;font-weight:700;color:var(--accent2);margin-bottom:6px">WHEN TO CHOOSE THE OTHER OPTION</div>
+      <div style="font-size:0.82rem;color:var(--muted)">${a.under_which_conditions_prefer_other}</div>
+    </div>` : '';
+}
+
+// ─────────────────────────────────────────────
+// Boot
+// ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
