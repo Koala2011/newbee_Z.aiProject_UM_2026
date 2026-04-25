@@ -1,4 +1,16 @@
-# GigOptimizer AI
+# UMHackathon 2026 Project - Domain 2 
+# Group name: newbee; Member: Wong Jia Hui, Tan Cai Juan, Lee Jun Rui
+---
+
+
+https://github.com/user-attachments/assets/6c66a8e1-03d8-4b45-b5e2-e40b0e562217
+
+
+
+Pitching Video: https://drive.google.com/file/d/1u0gr9ME6he7irhH57EJPusRqI7iaX91k/view?usp=sharing
+Reports(PRD,SAD,TAD): https://drive.google.com/drive/folders/1VT4DvvhwSaH2q792Zv1f6uQQn1eowWIm?usp=sharing
+---
+# Product: GigOptimizer AI
 ### Powered by Z.AI GLM (ilmu-glm-5.1)
 
 An intelligent decision-support system for gig economy workers in Malaysia.
