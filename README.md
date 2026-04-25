@@ -1,5 +1,6 @@
 # UMHackathon 2026 Project - Domain 2 
-# Group name: newbee; Member: Wong Jia Hui, Tan Cai Juan, Lee Jun Rui
+### Group name: newbee
+### Member: Wong Jia Hui, Tan Cai Juan, Lee Jun Rui
 ---
 
 
