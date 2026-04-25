@@ -1,0 +1,300 @@
+<h2 class="sr-only">Group name: newbee</h2>
+<h2 class="sr-only">Project Period: 16 April to 25 April 2026 </h2>
+<h2 class="sr-only">Project: GigOptimizer AI project (Domain 2)</h2>
+<h5 class="sr-only">Timeline Board 项目时间线看板，展示从2026年4月16日到4月25日的项目计划和进度。
+包含甘特图视图、冲刺看板和里程碑视图，详细列出每个任务的负责人、进度和优先级，以及关键里程碑事件的描述和标签。</h5>
+
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.pm-wrap{padding:1rem 0 2rem}
+.pm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+.pm-title{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.pm-sub{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.badge{font-size:11px;font-weight:500;padding:3px 8px;border-radius:4px;display:inline-block}
+.badge-blue{background:#E6F1FB;color:#0C447C}
+.badge-green{background:#EAF3DE;color:#27500A}
+.badge-amber{background:#FAEEDA;color:#633806}
+.badge-red{background:#FCEBEB;color:#791F1F}
+.badge-gray{background:#F1EFE8;color:#444441}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.tab-row{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{font-size:13px;font-weight:500;padding:6px 14px;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px;background:none;border-top:none;border-left:none;border-right:none;transition:color .15s}
+.tab.active{color:#185FA5;border-bottom-color:#185FA5}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.view{display:none}.view.active{display:block}
+
+.gantt-wrap{overflow-x:auto}
+.gantt-table{width:100%;min-width:680px;border-collapse:collapse;font-size:12px}
+.gantt-table th{font-weight:500;font-size:11px;color:var(--color-text-secondary);padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:left;white-space:nowrap}
+.gantt-table td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.task-name-cell{min-width:180px;max-width:220px;font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.task-cat{font-size:10px;color:var(--color-text-secondary);font-weight:400;margin-top:1px}
+.day-header{text-align:center;font-size:10px;padding:4px 2px;min-width:32px}
+.day-header.weekend{color:#A32D2D;background:#FFF5F5}
+.day-header.milestone{background:#EEEDFE;color:#3C3489;font-weight:500}
+.bar-cell{padding:3px 2px}
+.bar{height:16px;border-radius:3px;min-width:4px}
+.milestone-dot{width:12px;height:12px;border-radius:50%;margin:2px auto;border:2px solid}
+.today-col{background:rgba(24,95,165,0.05)}
+.progress-wrap{width:52px}
+.progress-track{width:100%;height:5px;background:var(--color-border-tertiary);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px}
+
+.board-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:4px}
+.board-col-head{font-size:12px;font-weight:500;color:var(--color-text-secondary);padding:6px 10px;border-radius:var(--border-radius-md);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.board-col-head .count{font-size:11px;background:var(--color-background-secondary);border-radius:10px;padding:1px 7px;color:var(--color-text-secondary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px;cursor:default;transition:border-color .15s}
+.card:hover{border-color:var(--color-border-secondary)}
+.card-id{font-size:10px;color:var(--color-text-tertiary);font-weight:500;margin-bottom:4px}
+.card-title{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.4;margin-bottom:6px}
+.card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.avatar{width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.milestone-list{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+.ms-row{display:flex;align-items:flex-start;gap:12px}
+.ms-line{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0}
+.ms-dot{width:14px;height:14px;border-radius:50%;border:2px solid;flex-shrink:0}
+.ms-connector{width:2px;flex:1;min-height:24px;margin:3px 0}
+.ms-content{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;flex:1}
+.ms-date{font-size:11px;font-weight:500;margin-bottom:3px}
+.ms-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.ms-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.ms-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+
+.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.metric-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+
+@media(max-width:600px){.board-cols{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
+<div class="pm-wrap">
+
+<div class="pm-header">
+  <div>
+    <div class="pm-title">GigOptimizer AI — Sprint Board</div>
+    <div class="pm-sub">16 Apr → 25 Apr 2026 &nbsp;·&nbsp; UMHackathon 2026 &nbsp;·&nbsp; Z.AI GLM Integration</div>
+  </div>
+  <span class="badge badge-blue">Active sprint</span>
+</div>
+
+<div class="summary-grid">
+  <div class="metric"><div class="metric-label">Sprint duration</div><div class="metric-val">10</div><div class="metric-sub">days total</div></div>
+  <div class="metric"><div class="metric-label">Total tasks</div><div class="metric-val">22</div><div class="metric-sub">across 4 phases</div></div>
+  <div class="metric"><div class="metric-label">Key milestones</div><div class="metric-val">3</div><div class="metric-sub">domain · API key · submission</div></div>
+  <div class="metric"><div class="metric-label">Completion</div><div class="metric-val">100%</div><div class="metric-sub">target by 25 Apr</div></div>
+</div>
+
+<div class="tab-row">
+  <button class="tab active" onclick="switchTab('gantt',this)">Gantt / Timeline</button>
+  <button class="tab" onclick="switchTab('board',this)">Sprint board</button>
+  <button class="tab" onclick="switchTab('milestones',this)">Milestones</button>
+</div>
+
+<!-- ───── GANTT ───── -->
+<div class="view active" id="view-gantt">
+<div class="gantt-wrap">
+<table class="gantt-table">
+<thead>
+<tr>
+  <th style="min-width:190px">Task</th>
+  <th style="min-width:60px">Assignee</th>
+  <th style="min-width:52px">Progress</th>
+  <th class="day-header milestone" title="Domain reveal">16<br><span style="font-size:9px">Thu</span></th>
+  <th class="day-header">17<br><span style="font-size:9px">Fri</span></th>
+  <th class="day-header weekend">18<br><span style="font-size:9px">Sat</span></th>
+  <th class="day-header weekend">19<br><span style="font-size:9px">Sun</span></th>
+  <th class="day-header">20<br><span style="font-size:9px">Mon</span></th>
+  <th class="day-header">21<br><span style="font-size:9px">Tue</span></th>
+  <th class="day-header milestone" title="API key released">22<br><span style="font-size:9px">Wed</span></th>
+  <th class="day-header">23<br><span style="font-size:9px">Thu</span></th>
+  <th class="day-header">24<br><span style="font-size:9px">Fri</span></th>
+  <th class="day-header milestone" title="Submission deadline">25<br><span style="font-size:9px">Sat</span></th>
+</tr>
+</thead>
+<tbody id="gantt-body"></tbody>
+</table>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;font-size:11px;color:var(--color-text-secondary);align-items:center">
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#3266AD;display:inline-block"></span>Planning & Analysis</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#1D9E75;display:inline-block"></span>Backend / GLM</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#D85A30;display:inline-block"></span>Frontend</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#7F77DD;display:inline-block"></span>Testing / Docs</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #7F77DD;display:inline-block"></span>Milestone</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:30px;height:5px;background:#EEEDFE;border-radius:2px;display:inline-block"></span>Purple col = milestone day</span>
+</div>
+</div>
+
+<!-- ───── BOARD ───── -->
+<div class="view" id="view-board">
+<div class="board-cols" id="board-cols"></div>
+</div>
+
+<!-- ───── MILESTONES ───── -->
+<div class="view" id="view-milestones">
+<div class="milestone-list" id="milestone-list"></div>
+</div>
+
+</div>
+
+<script>
+const DAYS = 10;
+
+const tasks = [
+  {id:'GO-01',title:'Domain reveal analysis & problem framing',cat:'Planning',assignee:'A',color:'#3266AD',start:0,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 1'},
+  {id:'GO-02',title:'Identify target users & define 3 worker profiles',cat:'Planning',assignee:'A',color:'#3266AD',start:0,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 1'},
+  {id:'GO-03',title:'System architecture design & API contract',cat:'Planning',assignee:'A',color:'#3266AD',start:1,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 1'},
+  {id:'GO-04',title:'PRD first draft',cat:'Planning',assignee:'A',color:'#3266AD',start:1,dur:2,prog:100,priority:'med',col:'done',phase:'Phase 1'},
+  {id:'GO-05',title:'Flask API scaffold & project setup',cat:'Backend',assignee:'A',color:'#1D9E75',start:2,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 2'},
+  {id:'GO-06',title:'Task enrichment engine (compute_task_metrics)',cat:'Backend',assignee:'A',color:'#1D9E75',start:2,dur:1,prog:100,priority:'high',col:'done',phase:'Phase 2'},
+  {id:'GO-07',title:'GLM call_glm() core function & error handling',cat:'Backend / GLM',assignee:'B',color:'#1D9E75',start:3,dur:2,prog:100,priority:'crit',col:'done',phase:'Phase 2'},
+  {id:'GO-08',title:'/analyze/tasks endpoint & prompt design',cat:'Backend / GLM',assignee:'B',color:'#1D9E75',start:4,dur:2,prog:100,priority:'crit',col:'done',phase:'Phase 2'},
+  {id:'GO-09',title:'/analyze/schedule endpoint',cat:'Backend / GLM',assignee:'B',color:'#1D9E75',start:5,dur:1,prog:100,priority:'high',col:'done',phase:'Phase 2'},
+  {id:'GO-10',title:'API key received — wire GLM live calls',cat:'Backend / GLM',assignee:'B',color:'#1D9E75',start:6,dur:1,prog:100,priority:'crit',col:'done',phase:'Phase 3'},
+  {id:'GO-11',title:'/analyze/income & /analyze/tradeoff endpoints',cat:'Backend / GLM',assignee:'A',color:'#1D9E75',start:6,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 3'},
+  {id:'GO-12',title:'Demo fallback generators (all 4 endpoints)',cat:'Backend / GLM',assignee:'A',color:'#1D9E75',start:6,dur:1,prog:100,priority:'high',col:'done',phase:'Phase 3'},
+  {id:'GO-13',title:'Dashboard layout & panel routing (index.html)',cat:'Frontend',assignee:'C',color:'#D85A30',start:4,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 2'},
+  {id:'GO-14',title:'GLM output renderers (task cards, rec cards)',cat:'Frontend',assignee:'C',color:'#D85A30',start:6,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 3'},
+  {id:'GO-15',title:'Earnings chart, worker switcher, schedule panel',cat:'Frontend',assignee:'C',color:'#D85A30',start:7,dur:1,prog:100,priority:'med',col:'done',phase:'Phase 3'},
+  {id:'GO-16',title:'GLM prompt tuning & temperature calibration',cat:'Testing / GLM',assignee:'B',color:'#7F77DD',start:7,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 3'},
+  {id:'GO-17',title:'Unit & integration testing (pytest + Postman)',cat:'Testing / QA',assignee:'A',color:'#7F77DD',start:7,dur:2,prog:100,priority:'high',col:'done',phase:'Phase 4'},
+  {id:'GO-18',title:'AI output validation (6 prompt/response pairs)',cat:'Testing / QA',assignee:'A',color:'#7F77DD',start:8,dur:1,prog:100,priority:'high',col:'done',phase:'Phase 4'},
+  {id:'GO-19',title:'SAD (System Analysis Documentation) complete',cat:'Documentation',assignee:'A',color:'#7F77DD',start:8,dur:1,prog:100,priority:'med',col:'done',phase:'Phase 4'},
+  {id:'GO-20',title:'QATD complete with all test results',cat:'Documentation',assignee:'A',color:'#7F77DD',start:8,dur:1,prog:100,priority:'med',col:'done',phase:'Phase 4'},
+  {id:'GO-21',title:'Final demo run & submission packaging',cat:'Submission',assignee:'A',color:'#7F77DD',start:9,dur:1,prog:100,priority:'crit',col:'done',phase:'Phase 4'},
+  {id:'GO-22',title:'Submit all deliverables by deadline',cat:'Submission',assignee:'A',color:'#533AB7',start:9,dur:1,prog:100,priority:'crit',col:'done',phase:'Phase 4'},
+];
+
+const milestones = [
+  {day:0,label:'16 Apr — Domain reveal',color:'#185FA5',borderColor:'#185FA5',connColor:'#B5D4F4',
+    title:'Domain reveal & project kickoff',
+    desc:'UMHackathon 2026 domain announced. Team immediately pivots to problem framing for the Malaysian gig economy. Worker profiles, task types, and the core GLM integration concept are defined. PRD drafted in parallel.',
+    tags:['Problem framing','User research','Architecture planning','PRD draft']},
+  {day:6,label:'22 Apr — API key released',color:'#1D9E75',borderColor:'#1D9E75',connColor:'#9FE1CB',
+    title:'API key & workshop materials released',
+    desc:'Z.AI ilmu-glm-5.1 API key and workshop materials received. Team wires live GLM calls into the 4 analysis endpoints. Prompt tuning begins immediately. Demo fallback generators validated against live GLM output.',
+    tags:['Live GLM integration','Prompt tuning','call_glm() activated','All 4 endpoints live']},
+  {day:9,label:'25 Apr — Final submission',color:'#7F77DD',borderColor:'#534AB7',connColor:'#CECBF6',
+    title:'Submission deadline — 25 Apr 2026',
+    desc:'All deliverables submitted: Flask backend + frontend dashboard, PRD, SAD, and QATD. 22 tasks completed. 14 test cases passed (100%). GLM integration validated across 3 worker profiles and 4 decision modules.',
+    tags:['PRD','SAD','QATD','Backend','Frontend','100% tests passed']},
+];
+
+const PRIORITY_COLORS = {crit:'#E24B4A',high:'#BA7517',med:'#1D9E75',low:'#888780'};
+const PRIORITY_LABELS = {crit:'Critical',high:'High',med:'Medium',low:'Low'};
+const AVATAR_COLORS = {A:'#B5D4F4',B:'#C0DD97',C:'#F5C4B3',D:'#CECBF6'};
+const AVATAR_TEXT = {A:'#0C447C',B:'#27500A',C:'#712B13',D:'#3C3489'};
+
+function avatar(code){
+  return `<span class="avatar" style="background:${AVATAR_COLORS[code]||'#ddd'};color:${AVATAR_TEXT[code]||'#333'}">${code}</span>`;
+}
+
+function buildGantt(){
+  const tbody = document.getElementById('gantt-body');
+  const MILESTONE_DAYS = [0,6,9];
+  tasks.forEach(t=>{
+    const tr = document.createElement('tr');
+    let cells = `<td class="task-name-cell"><div>${t.title}</div><div class="task-cat">${t.cat}</div></td>`;
+    cells += `<td style="text-align:center">${avatar(t.assignee)}</td>`;
+    cells += `<td class="bar-cell progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:${t.prog}%;background:${t.color}"></div></div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px;text-align:right">${t.prog}%</div></td>`;
+    for(let d=0;d<DAYS;d++){
+      const isMilestone = MILESTONE_DAYS.includes(d);
+      const isInBar = d >= t.start && d < t.start+t.dur;
+      const isStart = d === t.start;
+      const isEnd = d === t.start+t.dur-1;
+      let tdStyle = `padding:3px 2px;${isMilestone?'background:rgba(83,58,183,0.06)':''}`;
+      if(isInBar){
+        const br = `border-radius:${isStart?'3px':'0'} ${isEnd?'3px':'0'} ${isEnd?'3px':'0'} ${isStart?'3px':'0'}`;
+        cells += `<td style="${tdStyle}"><div class="bar" style="background:${t.color};${br};opacity:0.85"></div></td>`;
+      } else {
+        cells += `<td style="${tdStyle}"></td>`;
+      }
+    }
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+  const mrow = document.createElement('tr');
+  let mcells = `<td class="task-name-cell" style="padding-top:10px"><div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Milestones</div></td><td></td><td></td>`;
+  for(let d=0;d<DAYS;d++){
+    const isMilestone = MILESTONE_DAYS.includes(d);
+    if(isMilestone){
+      const colors = {0:'#185FA5',6:'#1D9E75',9:'#534AB7'};
+      mcells += `<td style="text-align:center;padding:6px 2px;background:rgba(83,58,183,0.06)"><div class="milestone-dot" style="border-color:${colors[d]};background:${colors[d]}20"></div></td>`;
+    } else {
+      mcells += `<td></td>`;
+    }
+  }
+  mrow.innerHTML = mcells;
+  mrow.style.borderTop = '1px solid var(--color-border-tertiary)';
+  tbody.appendChild(mrow);
+}
+
+function buildBoard(){
+  const cols = ['To do','In progress','In review','Done'];
+  const colColors = ['#F1EFE8','#E6F1FB','#FAEEDA','#EAF3DE'];
+  const colTextColors = ['#444441','#0C447C','#633806','#27500A'];
+  const colMap = {todo:'To do',inprog:'In progress',review:'In review',done:'Done'};
+  const grouped = {todo:[],inprog:[],review:[],done:[]};
+  tasks.forEach(t=>{ (grouped[t.col]||grouped.done).push(t); });
+  const container = document.getElementById('board-cols');
+  cols.forEach((col,i)=>{
+    const key = Object.keys(colMap).find(k=>colMap[k]===col);
+    const items = grouped[key]||[];
+    let colHTML = `<div>
+      <div class="board-col-head" style="background:${colColors[i]};color:${colTextColors[i]}">
+        <span>${col}</span><span class="count">${items.length}</span>
+      </div>`;
+    items.forEach(t=>{
+      colHTML += `<div class="card">
+        <div class="card-id">${t.id}</div>
+        <div class="card-title">${t.title}</div>
+        <div class="card-meta">
+          <span class="priority-dot" style="background:${PRIORITY_COLORS[t.priority]}" title="${PRIORITY_LABELS[t.priority]}"></span>
+          <span class="badge" style="font-size:10px;padding:2px 6px;background:${t.color}22;color:${t.color}">${t.cat}</span>
+          ${avatar(t.assignee)}
+        </div>
+      </div>`;
+    });
+    colHTML += `</div>`;
+    container.innerHTML += colHTML;
+  });
+}
+
+function buildMilestones(){
+  const container = document.getElementById('milestone-list');
+  milestones.forEach((m,i)=>{
+    const isLast = i === milestones.length-1;
+    container.innerHTML += `
+    <div class="ms-row">
+      <div class="ms-line">
+        <div class="ms-dot" style="border-color:${m.borderColor};background:${m.borderColor}20"></div>
+        ${!isLast?`<div class="ms-connector" style="background:${m.connColor}"></div>`:''}
+      </div>
+      <div class="ms-content">
+        <div class="ms-date" style="color:${m.borderColor}">${m.label}</div>
+        <div class="ms-title">${m.title}</div>
+        <div class="ms-desc">${m.desc}</div>
+        <div class="ms-tags">${m.tags.map(tag=>`<span class="badge badge-gray" style="font-size:10px">${tag}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  });
+}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+buildGantt();
+buildBoard();
+buildMilestones();
+</script>
