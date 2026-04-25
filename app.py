@@ -3,7 +3,7 @@ GigOptimizer AI - Backend
 Uses Z.AI's GLM (ilmu-glm-5.1) for intelligent gig worker optimization
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -22,6 +22,14 @@ CORS(app)
 GLM_URL = "https://api.ilmu.ai/v1/chat/completions"
 GLM_MODEL = "ilmu-glm-5.1"
 API_KEY = os.getenv("API_KEY", "demo-key")
+
+# ─────────────────────────────────────────────
+# Root route to serve the frontend
+# ─────────────────────────────────────────────
+
+@app.route("/")
+def index():
+    return send_from_directory('.', 'index.html')
 
 # ─────────────────────────────────────────────
 # GLM Core Interface
